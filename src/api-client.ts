@@ -12,5 +12,5 @@ function requireEnv(key: string): string {
 export const openai = new OpenAI({
   apiKey: requireEnv('MOE_API_KEY'),
   baseURL: requireEnv('MOE_API_BASE_URL'),
-  timeout: 60_000,
+  timeout: 300_000, // 5 min — thinking models can be slow
 });

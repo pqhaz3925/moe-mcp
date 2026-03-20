@@ -31,10 +31,11 @@ server.registerTool(
       model_id: z.string().describe('Model ID to query. Use list_models to discover available IDs.'),
       prompt: z.string().describe('The question or prompt to send to the model.'),
       system: z.string().optional().describe('Optional system prompt to set context or persona.'),
+      max_tokens: z.number().int().positive().optional().describe('Max tokens in the response. Useful to cap thinking models.'),
     },
   },
-  async ({ model_id, prompt, system }) => {
-    const result = await askModel(openai, model_id, prompt, system);
+  async ({ model_id, prompt, system, max_tokens }) => {
+    const result = await askModel(openai, model_id, prompt, system, max_tokens);
     return {
       content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
     };
@@ -50,10 +51,11 @@ server.registerTool(
       model_ids: z.array(z.string()).describe('List of model IDs to query simultaneously.'),
       prompt: z.string().describe('The question or prompt to send to all models.'),
       system: z.string().optional().describe('Optional system prompt applied to all models.'),
+      max_tokens: z.number().int().positive().optional().describe('Max tokens per model response. Useful to cap thinking models.'),
     },
   },
-  async ({ model_ids, prompt, system }) => {
-    const result = await askModels(openai, model_ids, prompt, system);
+  async ({ model_ids, prompt, system, max_tokens }) => {
+    const result = await askModels(openai, model_ids, prompt, system, max_tokens);
     return {
       content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
     };

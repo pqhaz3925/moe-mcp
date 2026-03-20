@@ -7,11 +7,12 @@ export async function askModels(
   model_ids: string[],
   prompt: string,
   system?: string,
+  max_tokens?: number,
 ): Promise<{ results: AskResult[] }> {
   if (model_ids.length === 0) return { results: [] };
 
   const settled = await Promise.allSettled(
-    model_ids.map((id) => askModel(client, id, prompt, system)),
+    model_ids.map((id) => askModel(client, id, prompt, system, max_tokens)),
   );
 
   const results: AskResult[] = settled.map((result, i) => {
