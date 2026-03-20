@@ -7,7 +7,7 @@ export async function askModels(
   model_ids: string[],
   prompt: string,
   system?: string,
-  max_tokens?: number,
+  max_tokens = 8192,
 ): Promise<{ results: AskResult[] }> {
   if (model_ids.length === 0) return { results: [] };
 

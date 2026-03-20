@@ -6,7 +6,7 @@ export async function askModel(
   model_id: string,
   prompt: string,
   system?: string,
-  max_tokens?: number,
+  max_tokens = 8192,
 ): Promise<AskSuccess> {
   const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [];
   if (system) messages.push({ role: 'system', content: system });

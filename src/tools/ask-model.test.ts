@@ -27,6 +27,7 @@ describe('askModel', () => {
 
     expect(create).toHaveBeenCalledWith({
       model: 'gpt-4',
+      max_tokens: 8192,
       messages: [
         { role: 'system', content: 'be concise' },
         { role: 'user', content: 'prompt' },
@@ -42,6 +43,7 @@ describe('askModel', () => {
 
     expect(create).toHaveBeenCalledWith({
       model: 'gpt-4',
+      max_tokens: 8192,
       messages: [{ role: 'user', content: 'prompt' }],
     });
   });
