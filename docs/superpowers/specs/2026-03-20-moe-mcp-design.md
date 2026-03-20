@@ -11,8 +11,10 @@
 ### Runtime
 - **Language:** TypeScript (Node.js)
 - **MCP SDK:** `@modelcontextprotocol/sdk`
+- **Transport:** stdio (standard for Claude Code MCP integration)
 - **API client:** `openai` npm package (OpenAI-compatible interface)
 - **Gateway:** `https://api.ebidoebi.sbs/v1` — OpenAI-compatible proxy
+- **Build:** `tsx` for dev (`npm run dev`), `tsc` + `node dist/index.js` for production (`npm run build && npm start`)
 
 ### Project Structure
 
@@ -69,8 +71,9 @@ Ask multiple models the same question in parallel.
   - `prompt: string` — user message
   - `system?: string` — optional system prompt
 - **Output:** `{ results: Array<{ model_id: string, response: string } | { model_id: string, error: string }> }`
-- Uses `Promise.all` for true parallel fan-out
-- Per-model error isolation: a failure in one model does not affect others
+- Uses `Promise.allSettled` for parallel fan-out with per-model error isolation
+- A failure in one model does not affect others — each settles independently
+- If `model_ids` is empty, returns `{ results: [] }` immediately without any API calls
 - 60s timeout per model call
 
 ## Error Handling
