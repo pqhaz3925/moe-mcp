@@ -1,5 +1,4 @@
 import { createServer } from 'node:http';
-import { randomUUID } from 'node:crypto';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { z } from 'zod';
@@ -36,10 +35,15 @@ function createMcpServer(): McpServer {
         prompt: z.string().describe('The question or prompt to send to the model.'),
         system: z.string().optional().describe('Optional system prompt to set context or persona.'),
         max_tokens: z.number().int().positive().optional().describe('Max tokens in the response. Useful to cap thinking models.'),
+        budget_tokens: z.number().int().positive().optional().describe('Shorthand for thinking.budget_tokens — enables extended thinking with this token budget.'),
+        thinking: z.object({
+          type: z.string().optional(),
+          budget_tokens: z.number().int().positive().optional(),
+        }).optional().describe('Extended thinking config. { budget_tokens } or { type: "enabled", budget_tokens } — both work.'),
       },
     },
-    async ({ model_id, prompt, system, max_tokens }) => {
-      const result = await askModel(openai, model_id, prompt, system, max_tokens);
+    async ({ model_id, prompt, system, max_tokens, thinking, budget_tokens }) => {
+      const result = await askModel(openai, model_id, prompt, system, max_tokens, thinking, budget_tokens);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );
@@ -54,10 +58,15 @@ function createMcpServer(): McpServer {
         prompt: z.string().describe('The question or prompt to send to all models.'),
         system: z.string().optional().describe('Optional system prompt applied to all models.'),
         max_tokens: z.number().int().positive().optional().describe('Max tokens per model response. Useful to cap thinking models.'),
+        budget_tokens: z.number().int().positive().optional().describe('Shorthand for thinking.budget_tokens — enables extended thinking with this token budget.'),
+        thinking: z.object({
+          type: z.string().optional(),
+          budget_tokens: z.number().int().positive().optional(),
+        }).optional().describe('Extended thinking config. { budget_tokens } or { type: "enabled", budget_tokens } — both work.'),
       },
     },
-    async ({ model_ids, prompt, system, max_tokens }) => {
-      const result = await askModels(openai, model_ids, prompt, system, max_tokens);
+    async ({ model_ids, prompt, system, max_tokens, thinking, budget_tokens }) => {
+      const result = await askModels(openai, model_ids, prompt, system, max_tokens, thinking, budget_tokens);
       return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
     },
   );

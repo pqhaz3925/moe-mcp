@@ -8,11 +8,14 @@ export async function askModels(
   prompt: string,
   system?: string,
   max_tokens = 8192,
+  thinking?: { type?: string; budget_tokens?: number } | null,
+  budget_tokens?: number,
+  timeout_ms = 300_000,
 ): Promise<{ results: AskResult[] }> {
   if (model_ids.length === 0) return { results: [] };
 
   const settled = await Promise.allSettled(
-    model_ids.map((id) => askModel(client, id, prompt, system, max_tokens)),
+    model_ids.map((id) => askModel(client, id, prompt, system, max_tokens, thinking, budget_tokens, timeout_ms)),
   );
 
   const results: AskResult[] = settled.map((result, i) => {
