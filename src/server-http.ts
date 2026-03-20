@@ -67,6 +67,11 @@ function createMcpServer(): McpServer {
 
 // Stateless mode: each request gets a fresh transport + server instance
 const httpServer = createServer(async (req, res) => {
+  const start = Date.now();
+  res.on('finish', () =>
+    console.error(`[moe-mcp] ${req.method} ${req.url} ${res.statusCode} ${Date.now() - start}ms`),
+  );
+
   // Bearer token auth (skip for health check)
   if (AUTH_TOKEN && req.url !== '/health') {
     const authHeader = req.headers['authorization'] ?? '';
