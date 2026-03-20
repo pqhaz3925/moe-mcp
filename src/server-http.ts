@@ -9,6 +9,7 @@ import { askModel } from './tools/ask-model.js';
 import { askModels } from './tools/ask-models.js';
 
 const PORT = Number(process.env.PORT ?? 3333);
+const AUTH_TOKEN = process.env.MCP_AUTH_TOKEN;
 
 function createMcpServer(): McpServer {
   const server = new McpServer({ name: 'moe-mcp', version: '1.0.0' });
@@ -64,6 +65,16 @@ function createMcpServer(): McpServer {
 
 // Stateless mode: each request gets a fresh transport + server instance
 const httpServer = createServer(async (req, res) => {
+  // Bearer token auth (skip for health check)
+  if (AUTH_TOKEN && req.url !== '/health') {
+    const authHeader = req.headers['authorization'] ?? '';
+    if (authHeader !== `Bearer ${AUTH_TOKEN}`) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+  }
+
   if (req.method === 'POST' && req.url === '/mcp') {
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
     const mcpServer = createMcpServer();
