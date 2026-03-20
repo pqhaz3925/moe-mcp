@@ -65,11 +65,7 @@ function createMcpServer(): McpServer {
   return server;
 }
 
-// Stateful mode: persistent transport + session management
-const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: () => randomUUID() });
-const mcpServer = createMcpServer();
-await mcpServer.connect(transport);
-
+// Stateless mode: each request gets a fresh transport + server instance
 const httpServer = createServer(async (req, res) => {
   const start = Date.now();
   res.on('finish', () =>
@@ -86,8 +82,18 @@ const httpServer = createServer(async (req, res) => {
     }
   }
 
-  if (req.url === '/mcp') {
+  if (req.method === 'POST' && req.url === '/mcp') {
+    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+    const mcpServer = createMcpServer();
+    await mcpServer.connect(transport);
     await transport.handleRequest(req, res);
+    return;
+  }
+
+  // Tell client SSE not supported — fall back to inline POST responses
+  if (req.method === 'GET' && req.url === '/mcp') {
+    res.writeHead(405);
+    res.end();
     return;
   }
 
